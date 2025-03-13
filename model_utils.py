@@ -6,7 +6,7 @@ from scipy.special import softmax
 
 
 @torch.no_grad()
-def compute_metrics(model, loader, device):
+def compute_metrics(model: torch.nn.Module, loader: torch.utils.data.DataLoader, device: torch.device):
     """Compute the class predictions and loss.
 
     Parameters
@@ -38,7 +38,7 @@ def compute_metrics(model, loader, device):
     return np.array(val_preds), cum_loss / len(loader.dataset)
 
 
-def pipeline_results_to_df(ans_list, label2id):
+def pipeline_results_to_df(ans_list: list[dict], label2id: dict[str, int]) -> pd.DataFrame:
     """Formats HuggingFace pipeline() results to a DataFrame, including entropy.
 
     Parameters
@@ -66,7 +66,7 @@ def pipeline_results_to_df(ans_list, label2id):
     return results_df
 
 
-def logits_to_df(logits, id2label):
+def logits_to_df(logits: np.ndarray, id2label: dict[int, str]) -> pd.DataFrame:
     """Format logits from a PyTorch model into a DataFrame, including entropy.
 
     Parameters
@@ -91,7 +91,7 @@ def logits_to_df(logits, id2label):
     )
 
 
-def combine_question_answer(batch):
+def combine_question_answer(batch) -> dict[str, list]:
     """Combine FFT question and answer into a single sequence
     
     Parameters

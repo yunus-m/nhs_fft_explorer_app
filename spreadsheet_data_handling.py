@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def clean_text(text):
+def clean_text(text: str) -> str:
     """Lightly process text to handle redundant codes.
     
     Parameters
@@ -35,7 +35,7 @@ def clean_text(text):
     return ' '.join(replaced.split())
 
 
-def tweak_generic(df):
+def tweak_generic(df: pd.DataFrame) -> pd.DataFrame:
     """Tweak FFT spreadsheet, including question type categorisation.
 
     -Answer is lightly cleaned
@@ -75,7 +75,7 @@ def tweak_generic(df):
     )
 
 
-def tweak_for_sentiment(df):
+def tweak_for_sentiment(df: pd.DataFrame) -> pd.DataFrame:
     """Tweak FFT data for sentiment analysis
     
     -Generic tweak

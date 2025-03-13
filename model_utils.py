@@ -1,88 +1,10 @@
-
-#%%
 import torch
 import numpy as np
 
-def save_embedding_weights(embedding_module, checkpoint):
-    """Save word and positional embeddings from a transformer
+import pandas as pd
+from scipy.special import softmax
 
-    Parameters
-    ----------
-    embedding_module : torch.nn.Module
-        The embedding block with word and position embedding matrices
-    checkpoint : str
-        Model saved in ./embedding_weights/ to extract weights from
 
-    Returns
-    ----------
-    None
-    """
-    pathname_pattern = "./embedding_weights/*_embedding_weights[%s].npy" % checkpoint.replace('/', '--')
-
-    with torch.no_grad():
-        word_embedding_weights = embedding_module.word_embeddings.weight.cpu().numpy()
-        position_embedding_weights = embedding_module.position_embeddings.weight.cpu().numpy()
-    print(word_embedding_weights.shape, position_embedding_weights.shape)
-
-    [
-        np.save(pathname_pattern.replace('*', name), weights)
-        for name, weights
-        in [('word', word_embedding_weights), ('position', position_embedding_weights)]
-    ]
-
-def load_embedding_weights(checkpoint):
-    """Load word and position embedding weights.
-
-    Parameters
-    ----------
-    checkpoint : str
-        Weights saved in ./embedding_weights/ to load.
-    
-    Returns
-    ----------
-    Tuple of np.ndarray (word embedding weights, position embedding weights)
-    """
-    pathname_pattern = "./embedding_weights/*_embedding_weights[%s].npy" % checkpoint.replace('/', '--')
-
-    return [
-        np.load(pathname_pattern.replace('*', name))
-        for name in ('word', 'position')
-    ]
-
-#%% Discretised version of loguniform dist
-from scipy.stats import loguniform
-
-def float_to_int(rvs):
-    """Decorator that rounds floats and returns ints
-    
-    Parameters
-    ----------
-    rvs : rvs method handle of SciPy distribution
-
-    Returns
-    ----------
-    Wrapped rvs where the values are rounded integers
-    """
-    def rvs_wrapper(*args, **kwargs):
-        return rvs(*args, **kwargs).round().astype(int)
-    return rvs_wrapper
-
-def int_loguniform(low, high):
-    """Instantiate a loguniform distribution and patch its .rvs()
-    
-    Parameters
-    ----------
-    low, high: upper and lower limits of uniform distribution
-
-    Returns
-    ----------
-    SciPy loguniform object with integer values upon calling rvs()
-    """
-    lu = loguniform(float(low), float(high))
-    lu.rvs = float_to_int(lu.rvs)
-    return lu
-
-#%%
 @torch.no_grad()
 def compute_metrics(model, loader, device):
     """Compute the class predictions and loss.
@@ -115,8 +37,7 @@ def compute_metrics(model, loader, device):
     
     return np.array(val_preds), cum_loss / len(loader.dataset)
 
-#%%
-import pandas as pd
+
 def pipeline_results_to_df(ans_list, label2id):
     """Formats HuggingFace pipeline() results to a DataFrame, including entropy.
 
@@ -144,8 +65,6 @@ def pipeline_results_to_df(ans_list, label2id):
     )
     return results_df
 
-#%%
-from scipy.special import softmax
 
 def logits_to_df(logits, id2label):
     """Format logits from a PyTorch model into a DataFrame, including entropy.
@@ -171,7 +90,7 @@ def logits_to_df(logits, id2label):
         .assign(predicted_id=lambda df_: df_['predicted_label'].map(label2id))
     )
 
-#%%
+
 def combine_question_answer(batch):
     """Combine FFT question and answer into a single sequence
     

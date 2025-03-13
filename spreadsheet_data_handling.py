@@ -1,37 +1,6 @@
 import pandas as pd
 import numpy as np
 
-#Add pxtextmining/ to path
-import sys
-if '../' not in sys.path:
-    sys.path.append('../')
-
-from pxtextmining.pxtextmining import params
-
-#%% Dict mapping each minor category to its major category
-minor_to_major_cat_dict = {}
-for minor_cat in params.minor_cats:
-    minor_to_major_cat_dict[minor_cat] = [k for k, v in params.major_cat_dict.items() if minor_cat in v][0]
-
-#%% Helper functions
-
-def cols_to_snake_case(df):
-    """Change column names to snake_case
-    
-    Parameters
-    ----------
-    df : DataFrame
-        df whose columns will be formatted
-    
-    Returns
-    ----------
-    DataFrame with snake-case column names
-    """
-    return df.set_axis(
-        df.columns.map(lambda col_name: col_name.lower().strip().replace(' ', '_')),
-        axis=1
-    )
-
 def clean_text(text):
     """Lightly process text to handle redundant codes.
     
@@ -65,8 +34,6 @@ def clean_text(text):
     )
     return ' '.join(replaced.split())
 
-#%% Tweaking the df
-#NB. Dates aren't consistently recorded. Sometimes d/m is swapped.
 
 def tweak_generic(df):
     """Tweak FFT spreadsheet, including question type categorisation.
@@ -75,6 +42,8 @@ def tweak_generic(df):
     -Question type column added
     -Answer length columns added
     -Drop null answers
+
+    NB. Dates aren't consistently recorded. Sometimes d/m is swapped.
 
     Parameters
     ----------
@@ -141,68 +110,5 @@ def tweak_for_sentiment(df):
           'question_type', 'answer_clean',
           'answer_char_len', 'answer_word_len',
           'Comment sentiment', 'sentiment_desc',
-        ]]
-    )
-
-
-def tweak_for_categorisation(df, raw_cat_labels):
-    """Tweak FFT data for category tagging analysis
-    
-    -Generic tweak
-    -Drop null category entries
-    -Add columns identifying the major and minor tags, and number of tags
-    -Drop columns not used for category analysis
-
-    Parameters
-    ----------
-    df : DataFrame
-        df to tweak for category tagging analysis
-    
-    Returns
-    ----------
-    Tweaked df filtered to categorisation-relevant records
-    """
-    return (
-        df
-        .pipe(tweak_generic)
-
-        #Drop rows that have category "Not assigned"
-        .loc[lambda df_: df_['Not assigned'].isna()]
-        #Drop categories in the CSV that are not present in params.minor_cats
-        .drop(columns=[col for col in raw_cat_labels if col not in params.minor_cats])
-
-        #Summarise all the minor categories for this row into a single column
-        # Only consider valid categories. Empty results will be dropped.
-        .assign(
-            minor_categories=lambda df_:
-            df_
-            .filter(items=params.minor_cats, axis=1)
-            .apply(lambda row_: row_.dropna().index.tolist(), axis=1)
-        )
-        #Drop rows that didn't have a valid category
-        .loc[lambda df_: df_['minor_categories'].map(len).gt(0)]
-        #number of minor categories assigned
-        .assign(n_minor_categories=lambda df_: df_['minor_categories'].map(len).astype(int))
-
-        #column for major categories (one per minor cat)
-        .assign(major_categories=lambda df_: df_['minor_categories'].apply(
-            lambda labels_: [minor_to_major_cat_dict[label] for label in labels_],
-        ))
-        #number of unique major categories
-        .assign(
-            n_unique_major_categories=lambda df_:
-            df_['major_categories'].map(set).map(len).astype(int)
-        )
-
-        #Retain columns
-        [['Comment ID', 'Trust', 'Respondent ID', 'Date',
-          #'Service type 1', 'Service type 2',
-          'question_type',  'answer_clean',
-          'answer_char_len', 'answer_word_len',
-          # 'FFT categorical answer', 'FFT question', 
-          # 'Person identifiable info?',
-
-          'minor_categories', 'n_minor_categories',
-          'major_categories', 'n_unique_major_categories'
         ]]
     )

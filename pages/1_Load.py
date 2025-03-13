@@ -54,16 +54,23 @@ if run_proc_btn:
     from model_utils import combine_question_answer
     from datasets import Dataset
 
+    #Load from pandas
     fft_dataset = Dataset\
         .from_pandas(df_tweaked[['question_type', 'answer_clean']])\
         .remove_columns('__index_level_0__')
     
+    #Merge q & a into single text sequence
     fft_dataset = fft_dataset\
         .map(combine_question_answer, batched=True)\
         .remove_columns(['question_type', 'answer_clean'])
     
+    #Tokenize
+    fft_tokenized = fft_dataset\
+        .map(lambda batch: tokenizer(batch['q_and_a'], truncation=True, max_length=512), batched=True)\
+        .remove_columns('q_and_a')
+    
     #
-    # Get embeddings
+    # Configure loader
     #
     from torch.utils.data import DataLoader
     from transformers import DataCollatorWithPadding
@@ -71,18 +78,13 @@ if run_proc_btn:
 
     dynamic_padding_collator = DataCollatorWithPadding(tokenizer)
 
-    #Tokenize
-    fft_tokenized = fft_dataset\
-        .map(lambda batch: tokenizer(batch['q_and_a'], truncation=True, max_length=512), batched=True)\
-        .remove_columns('q_and_a')
-    
     loader = DataLoader(
         fft_tokenized,  batch_size=32,
         pin_memory=False if device=='cpu' else True,
         shuffle=False, collate_fn=dynamic_padding_collator
     )
 
-    
+
     
 
 

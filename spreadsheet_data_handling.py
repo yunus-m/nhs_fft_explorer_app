@@ -1,6 +1,31 @@
 import pandas as pd
 import numpy as np
 
+#Dicts from pxtextmining/pxtextmining/params.py
+q_map = {
+    "Please tell us why": "nonspecific",
+    "Please tells us why you gave this answer?": "nonspecific",
+    "FFT Why?": "nonspecific",
+    "What was good?": "what_good",
+    "Is there anything we could have done better?": "could_improve",
+    "How could we improve?": "could_improve",
+    "What could we do better?": "could_improve",
+    "Please can you tell us why you gave your answer and what we could have done better?": "nonspecific",
+    "Please describe any things about the 111 service that\r\nyou were particularly satisfied and/or dissatisfied with": "nonspecific",
+    "Please describe any things about the 111 service that \nyou were particularly satisfied and/or dissatisfied with": "nonspecific",
+    "Please describe any things about the 111 service that\nyou were particularly satisfied and/or dissatisfied with": "nonspecific",
+    "Nonspecific": "nonspecific",
+    "nonspecific": "nonspecific",
+}
+sentiment_dict = {
+    1: "very positive",
+    2: "positive",
+    3: "neutral",
+    4: "negative",
+    5: "very negative",
+}
+
+
 def clean_text(text: str) -> str:
     """Lightly process text to handle redundant codes.
     
@@ -35,15 +60,14 @@ def clean_text(text: str) -> str:
     return ' '.join(replaced.split())
 
 
-def tweak_generic(df: pd.DataFrame) -> pd.DataFrame:
+def tweak_raw_df(df: pd.DataFrame) -> pd.DataFrame:
     """Tweak FFT spreadsheet, including question type categorisation.
 
     -Answer is lightly cleaned
     -Question type column added
     -Answer length columns added
     -Drop null answers
-
-    NB. Dates aren't consistently recorded. Sometimes d/m is swapped.
+    -Return selected columns
 
     Parameters
     ----------
@@ -58,7 +82,7 @@ def tweak_generic(df: pd.DataFrame) -> pd.DataFrame:
         df
 
         #FFT question -> {nonspecific, could_improve, what_good}
-        .assign(question_type=lambda df_: df_['FFT question'].map(params.q_map))
+        .assign(question_type=lambda df_: df_['FFT question'].map(q_map))
 
         #Clean answer. Light touch atm, might discard if using llm embeddings.
         .assign(answer_clean=lambda df_: df_['FFT answer'].fillna('').astype(str).map(clean_text))
@@ -72,43 +96,10 @@ def tweak_generic(df: pd.DataFrame) -> pd.DataFrame:
 
         #Dates aren't formatted consistently. d/m sometimes swapped.
         # .assign(Date=lambda df_: pd.to_datetime(df_['Date'], format='%d/%m/%Y', errors='coerce'))
-    )
-
-
-def tweak_for_sentiment(df: pd.DataFrame) -> pd.DataFrame:
-    """Tweak FFT data for sentiment analysis
-    
-    -Generic tweak
-    -Drop null sentiment entries
-    -Add sentiment score description
-    -Convert sentiment score to int
-    -Drop columns not used for sentiment analysis
-
-    Parameters
-    ----------
-    df : DataFrame
-        df to tweak for sentiment analysis
-    
-    Returns
-    ----------
-    Tweaked df filtered to sentiment-relevant records
-    """
-    return (
-        df
-        .pipe(tweak_generic)
-
-        #Drop rows where `Comment sentiment` is NaN
-        .loc[lambda df_: df_['Comment sentiment'].notna()]
-
-        #Sentiment textual description from params.sentiment_dict
-        .assign(sentiment_desc=lambda df_: df_['Comment sentiment'].map(params.sentiment_dict))
-
-        .astype({'Comment sentiment': int})
 
         #Select and order columns
         [['Comment ID', 'Trust', 'Respondent ID', 'Date',
           'question_type', 'answer_clean',
-          'answer_char_len', 'answer_word_len',
-          'Comment sentiment', 'sentiment_desc',
+        #   'answer_char_len', 'answer_word_len',
         ]]
     )

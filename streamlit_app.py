@@ -5,5 +5,4 @@ import streamlit as st
 
 st.title('Landing page')
 
-st.write('Use this app to explore, export, or annotate data.')
-
+st.write('Use this app to process, explore, and export FFT data.')

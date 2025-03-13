@@ -10,17 +10,9 @@ from plotly.subplots import make_subplots
 st.title('Explore')  #st.header
 st.write('Explore the scatter plots with different column colourings')
 
-#Upload
-df = None
-
-uploaded_file = st.file_uploader('Load a CSV', type='csv')
-
-if uploaded_file:
-    df = pd.read_csv(uploaded_file)
-else:
-    st.warning('No data')
-
-if df:
+if hasattr(st.session_state, 'df_tweaked'):
+    df = st.session_state.df_tweaked
+    
     fig = make_subplots(
         rows=2, cols=2,
         #shared_xaxes=True, shared_yaxes=True, #latter not quite as needed

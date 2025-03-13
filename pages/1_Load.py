@@ -2,6 +2,7 @@
 
 import streamlit as st
 import pandas as pd
+import numpy as np
 
 from spreadsheet_data_handling import tweak_raw_df
 
@@ -83,6 +84,39 @@ if run_proc_btn:
         pin_memory=False if device=='cpu' else True,
         shuffle=False, collate_fn=dynamic_padding_collator
     )
+
+    #
+    # Get embeddings
+    # For efficiency, get embeddings & logits in a single pass aot separate passes
+    #
+    embeddings = []
+    logits = []
+
+    classifier_head = torch.nn.Sequential(model.dropout, model.classifier)
+    with torch.no_grad():
+        for minibatch in loader:
+            minibatch = {k: v.to(device) for k, v in minibatch.items()}
+
+            features = model.bert(
+                input_ids=minibatch['input_ids'],
+                attention_mask=minibatch['attention_mask']
+            )
+
+            #[B, L, emb] -> avg tokens' hidden rep -> [B, emb]
+            # embeddings_mb = features.last_hidden_state.cpu().numpy().mean(axis=1)
+
+            #[B, L, emb] -> final CLS rep -> [B, emb]
+            embeddings_mb = features.pooler_output.cpu().numpy()
+
+            #Pass remainder through for logits
+            logits_mb = classifier_head(features.pooler_output)
+
+            #Record results
+            embeddings.append(embeddings_mb)
+            logits.append(logits_mb)
+    
+    embeddings = np.concatenate(embeddings, axis=0)
+    logits = np.concatenate(logits, axis=0)
 
 
     

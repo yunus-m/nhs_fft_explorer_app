@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 #Dicts from pxtextmining/pxtextmining/params.py
 q_map = {

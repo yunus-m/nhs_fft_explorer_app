@@ -8,57 +8,86 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 
+#
+# Helper functions
+#
+def cmap_to_colorscale(cmap):
+    cmap_rgb = [cmap(i)[:3] for i in np.linspace(0., 1., cmap.N)]
+    cmap_rgb_str = ['rgb({:.0f}, {:.0f}, {:.0f})'.format(r*255, g*255, b*255) for r, g, b in cmap_rgb]
+    # return [(i / (cmap.N - 1), rgb_str) for i, rgb_str in enumerate(cmap_rgb_str)]
+    return cmap_rgb_str
+
+
+#
+# Page
+#
 st.title('Explore')  #st.header
 st.write('Explore the scatter plots with different column colourings')
 
 col1, col2, col3 = st.columns(3)
 with col1:
-    neigh_slider = st.slider('local vs global relations', min_value=3, max_value=50, value=15, step=2)
+    neigh_slider = st.slider('local vs global structure', min_value=3, max_value=50, value=15, step=2, help='Smaller values emphasise intracluster detail, whereas larger values focus on global structure')
 with col2:
     size_slider = st.slider('marker size', min_value=1, max_value=10, value=3, step=1)
 with col3:
     opacity_slider = st.slider('opacity', min_value=0.1, max_value=1., value=1., step=0.1)
 
+from umap import UMAP
+import textwrap
+
 if hasattr(st.session_state, 'data_dict'):
-    from umap import UMAP
-
     df = st.session_state.data_dict['df_tweaked']
-
-    proj = UMAP(neigh_slider, random_state=0).fit_transform(st.session_state.data_dict['embeddings'])
-    proj_x, proj_y = proj.T
-    
     predictions = st.session_state.data_dict['predictions']
     class_probs = st.session_state.data_dict['class_probs']
     entropies = st.session_state.data_dict['entropies'] #/ np.log2(5) * 100
-    descriptions = [{0: 'very positive', 1: 'positive', 2: 'neutral', 3: 'negative', 4: 'very negative'}[p] for p in predictions]
+    descriptions = [
+        {0: 'very positive', 1: 'positive', 2: 'neutral', 3: 'negative', 4: 'very negative'}[p]
+        for p in predictions
+    ]
+
+    #UMAP
+    proj = UMAP(neigh_slider, random_state=0).fit_transform(st.session_state.data_dict['embeddings'])
+    proj_x, proj_y = proj.T
+
+    #Update state for Export page
+    st.session_state.data_dict.update({'descriptions': descriptions, 'proj': proj})
     
+
+    #
+    # Figures
+    #
     fig = make_subplots(
         rows=3, cols=1,
-        #shared_xaxes=True, shared_yaxes=True, #latter not quite as needed
-        
-        # specs=[
-        #     [{'colspan': 2, 'rowspan': 3}, None, {}],
-        #     [None, None, {}],
-        #     [None, None, {}]
-        # ],
-        
-        # column_widths=[0.45, 0.45, 0.1],
-        # row_heights=[1, 1, 1],
-        # horizontal_spacing=0.05, vertical_spacing=0.05
+        vertical_spacing=0,
     )
 
-    hovertext = [f'{desc} <br> {ans}' for desc, ans in zip(descriptions, df.answer_clean)]
-    scatter_props = dict(x=proj_x, y=proj_y, hovertext=hovertext, mode='markers', opacity=opacity_slider)
+    hovertext = [
+        f'{desc}    #{ix}' + '<br>' + textwrap.fill(text=ans, width=50).replace("\n", "<br>")
+        for desc, ans, ix in zip(descriptions, df.answer_clean, df.index)
+    ]
+
+    hoverlabel = dict(
+        font=dict(size=12, family='Arial', weight='bold'),
+        bgcolor='rgba(0, 0, 0, 1)',
+        bordercolor='rgba(0, 0, 0, 1)'
+    )
+    
+    scatter_props = dict(
+        x=proj_x, y=proj_y,
+        hovertext=hovertext, hoverlabel=hoverlabel, hoverinfo='text',
+        mode='markers', opacity=opacity_slider
+    )
 
     scatter1 = go.Scatter(
         **scatter_props,
         marker=dict(
             color=predictions,
-            colorscale='PiYG_r',
+            colorscale='PiYG_r', #cmap_to_colorscale( plt.get_cmap('PiYG_r', 5) )
             size=size_slider,
             colorbar={
                 'title': 'sentiment',
                 'lenmode': 'fraction',
+                'thickness': 30,
                 'len': 0.3,
                 'y': 0.9,
                 'tickmode': 'array',
@@ -125,4 +154,3 @@ if hasattr(st.session_state, 'data_dict'):
     )
 
     st.plotly_chart(fig, use_container_width=True)
-

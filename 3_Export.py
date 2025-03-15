@@ -23,7 +23,7 @@ def style_sentiment_description(val):
 def to_excel(df):
     buffer = BytesIO()
 
-    with pd.ExcelWriter(buffer) as writer:
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
         df.to_excel(writer)
     buffer.seek(0)
 
@@ -48,9 +48,8 @@ else:
     proj = st.session_state.data_dict['proj']
     descriptions = st.session_state.data_dict['descriptions']
     
-    st.dataframe(
-        df
-        .assign(
+    styled_df = (
+        df.assign(
             prediction=predictions,
             sentiment=descriptions,
             probability=class_probs,
@@ -64,17 +63,16 @@ else:
         .map(style_sentiment_description, subset='sentiment')
         .background_gradient(subset='probability', cmap='hot')
         .background_gradient(subset='entropy', cmap='PuBu_r')
-        .format(subset=['probability', 'entropy'], precision=2),
-        
-        use_container_width=True
+        .format(subset=['probability', 'entropy'], precision=2)
     )
+    st.dataframe(styled_df, use_container_width=True)
 
     #
     # Download buttons
     #
     st.download_button(
         label='Export as Excel',
-        data=to_excel(df),
+        data=to_excel(styled_df),
         file_name='export.xlsx',
         mime="application/vnd.ms-excel",
     )

@@ -38,6 +38,15 @@ if run_proc_btn:
         #Load local model and tokenizer
         #
         import torch
+        
+        #Fix for docker deployment with streamlit
+        # https://github.com/VikParuchuri/marker/issues/442
+        import os
+        torch.classes.__path__ = [os.path.join(torch.__path__[0], torch.classes.__file__)] 
+        # or simply:
+        # torch.classes.__path__ = []
+        #/end of fix
+
         device = 'cpu'; torch.set_num_threads(4) #mimic CPU-only
 
         from transformers import AutoModelForSequenceClassification, AutoTokenizer

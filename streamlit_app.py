@@ -1,6 +1,6 @@
 import streamlit as st
 
-pg = st.navigation(['pages/1_Load.py', 'pages/2_Explore.py', 'pages/3_Export.py', 'pages/4_About.py'])
+pg = st.navigation(['1_Load.py', '2_Explore.py', '3_Export.py', '4_About.py'])
 pg.run()
 
 # st.title('Landing page')

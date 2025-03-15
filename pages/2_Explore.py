@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+from spreadsheet_data_handling import sentiment_dict
 
 #
 # Helper functions
@@ -17,6 +18,14 @@ def cmap_to_colorscale(cmap):
     # return [(i / (cmap.N - 1), rgb_str) for i, rgb_str in enumerate(cmap_rgb_str)]
     return cmap_rgb_str
 
+colorscale = cmap_to_colorscale(plt.get_cmap('PiYG_r', 5))
+discrete_colorscale = [
+    (0/5, colorscale[0]), (1/5, colorscale[0]),
+    (1/5, colorscale[1]), (2/5, colorscale[1]),
+    (2/5, colorscale[2]), (3/5, colorscale[2]),
+    (3/5, colorscale[3]), (4/5, colorscale[3]),
+    (4/5, colorscale[4]), (5/5, colorscale[4]),
+]
 
 #
 # Page
@@ -39,11 +48,8 @@ if hasattr(st.session_state, 'data_dict'):
     df = st.session_state.data_dict['df_tweaked']
     predictions = st.session_state.data_dict['predictions']
     class_probs = st.session_state.data_dict['class_probs']
-    entropies = st.session_state.data_dict['entropies'] #/ np.log2(5) * 100
-    descriptions = [
-        {0: 'very positive', 1: 'positive', 2: 'neutral', 3: 'negative', 4: 'very negative'}[p]
-        for p in predictions
-    ]
+    entropies = st.session_state.data_dict['entropies']
+    descriptions = [sentiment_dict[p] for p in predictions]
 
     #UMAP
     proj = UMAP(neigh_slider, random_state=0).fit_transform(st.session_state.data_dict['embeddings'])
@@ -56,13 +62,10 @@ if hasattr(st.session_state, 'data_dict'):
     #
     # Figures
     #
-    fig = make_subplots(
-        rows=3, cols=1,
-        vertical_spacing=0,
-    )
+    fig = make_subplots(rows=3, cols=1, vertical_spacing=0,)
 
     hovertext = [
-        f'{desc}    #{ix}' + '<br>' + textwrap.fill(text=ans, width=50).replace("\n", "<br>")
+        f'{desc}    #{ix}' + '<br>' + textwrap.fill(text=ans, width=50).replace('\n', '<br>')
         for desc, ans, ix in zip(descriptions, df.answer_clean, df.index)
     ]
 
@@ -75,14 +78,15 @@ if hasattr(st.session_state, 'data_dict'):
     scatter_props = dict(
         x=proj_x, y=proj_y,
         hovertext=hovertext, hoverlabel=hoverlabel, hoverinfo='text',
-        mode='markers', opacity=opacity_slider
+        mode='markers',
+        opacity=opacity_slider
     )
 
     scatter1 = go.Scatter(
         **scatter_props,
         marker=dict(
             color=predictions,
-            colorscale='PiYG_r', #cmap_to_colorscale( plt.get_cmap('PiYG_r', 5) )
+            colorscale=discrete_colorscale,
             size=size_slider,
             colorbar={
                 'title': 'sentiment',
@@ -91,8 +95,8 @@ if hasattr(st.session_state, 'data_dict'):
                 'len': 0.3,
                 'y': 0.9,
                 'tickmode': 'array',
-                'tickvals': [0, 1, 2, 3, 4],
-                'ticktext': ['very positive', 'positive', 'neutral', 'negative', 'very negative']
+                'tickvals': list(sentiment_dict.keys()),
+                'ticktext': list(sentiment_dict.values()),
             },
             #/colorbar
         ),
@@ -103,7 +107,7 @@ if hasattr(st.session_state, 'data_dict'):
         **scatter_props,
         marker=dict(
             color=class_probs,
-            colorscale='Reds',
+            colorscale='hot',
             size=size_slider,
             colorbar={
                 'title': 'probability',
@@ -120,7 +124,7 @@ if hasattr(st.session_state, 'data_dict'):
         **scatter_props,
         marker=dict(
             color=entropies,
-            colorscale='Purples',
+            colorscale='PuBu_r',
             size=size_slider,
             colorbar={
                 'title': 'entropy',
@@ -154,3 +158,5 @@ if hasattr(st.session_state, 'data_dict'):
     )
 
     st.plotly_chart(fig, use_container_width=True)
+else:
+    st.warning('No data loaded')

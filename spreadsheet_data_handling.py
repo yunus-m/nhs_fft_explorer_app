@@ -2,13 +2,18 @@ import pandas as pd
 
 #Dicts from pxtextmining/pxtextmining/params.py
 q_map = {
-    "Please tell us why": "nonspecific",
-    "Please tells us why you gave this answer?": "nonspecific",
-    "FFT Why?": "nonspecific",
+    #what_good:
     "What was good?": "what_good",
+
+    #could_improve:
     "Is there anything we could have done better?": "could_improve",
     "How could we improve?": "could_improve",
     "What could we do better?": "could_improve",
+
+    #nonspecific:
+    "Please tell us why": "nonspecific",
+    "Please tells us why you gave this answer?": "nonspecific",
+    "FFT Why?": "nonspecific",
     "Please can you tell us why you gave your answer and what we could have done better?": "nonspecific",
     "Please describe any things about the 111 service that\r\nyou were particularly satisfied and/or dissatisfied with": "nonspecific",
     "Please describe any things about the 111 service that \nyou were particularly satisfied and/or dissatisfied with": "nonspecific",
@@ -16,12 +21,13 @@ q_map = {
     "Nonspecific": "nonspecific",
     "nonspecific": "nonspecific",
 }
+#Adapted to start at 0
 sentiment_dict = {
-    1: "very positive",
-    2: "positive",
-    3: "neutral",
-    4: "negative",
-    5: "very negative",
+    0: "very positive",
+    1: "positive",
+    2: "neutral",
+    3: "negative",
+    4: "very negative",
 }
 
 

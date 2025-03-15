@@ -24,7 +24,7 @@ if uploaded_file:
     #
     # Show tweaked data
     #
-    df_tweaked = df.pipe(tweak_raw_df)
+    df_tweaked = df.pipe(tweak_raw_df)[['Comment ID', 'question_type', 'answer_clean']]
     st.write('**Formatted data**')
     st.dataframe(df_tweaked.iloc[:100])
 
@@ -56,13 +56,13 @@ if run_proc_btn:
 
         #Load from pandas
         fft_dataset = Dataset\
-            .from_pandas(df_tweaked[['question_type', 'answer_clean']])\
+            .from_pandas(df_tweaked)\
             .remove_columns('__index_level_0__')
         
         #Merge q & a into single text sequence
         fft_dataset = fft_dataset\
             .map(combine_question_answer, batched=True)\
-            .remove_columns(['question_type', 'answer_clean'])
+            .remove_columns(['Comment ID', 'question_type', 'answer_clean'])
         
         #Tokenize
         fft_tokenized = fft_dataset\

@@ -43,8 +43,7 @@ if run_proc_btn:
         # https://github.com/VikParuchuri/marker/issues/442
         import os
         torch.classes.__path__ = [os.path.join(torch.__path__[0], torch.classes.__file__)] 
-        # or simply:
-        # torch.classes.__path__ = []
+        # or simply: torch.classes.__path__ = []
         #/end of fix
 
         device = 'cpu'; torch.set_num_threads(4) #mimic CPU-only

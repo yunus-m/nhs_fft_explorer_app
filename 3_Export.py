@@ -48,7 +48,7 @@ else:
     proj = st.session_state.data_dict['proj']
     descriptions = st.session_state.data_dict['descriptions']
     
-    styled_df = (
+    final_df = (
         df.assign(
             prediction=predictions,
             sentiment=descriptions,
@@ -58,28 +58,30 @@ else:
         )
         .sort_values('prediction', ascending=False)
         [['question_type', 'answer_clean', 'sentiment', 'probability', 'entropy', '2D viz']]
-        
+    )
+    final_df_styled = (
+        final_df
         .style
         .map(style_sentiment_description, subset='sentiment')
         .background_gradient(subset='probability', cmap='hot')
         .background_gradient(subset='entropy', cmap='PuBu_r')
         .format(subset=['probability', 'entropy'], precision=2)
     )
-    st.dataframe(styled_df, use_container_width=True)
+    st.dataframe(final_df_styled, use_container_width=True)
 
     #
     # Download buttons
     #
     st.download_button(
         label='Export as Excel',
-        data=to_excel(styled_df),
+        data=to_excel(final_df_styled),
         file_name='export.xlsx',
         mime="application/vnd.ms-excel",
     )
 
     st.download_button(
         label='Export as CSV',
-        data=df.to_csv(),
+        data=final_df.to_csv(),
         file_name='export.csv',
         mime='text/csv',
     )

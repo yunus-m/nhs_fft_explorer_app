@@ -34,7 +34,7 @@ with col1:
     )
 
 with col2:
-    size_slider = st.slider('marker size', min_value=1, max_value=10, value=5, step=1)
+    size_slider = st.slider('marker size', min_value=1, max_value=10, value=3, step=1)
 
 with col3:
     opacity_slider = st.slider('marker opacity', min_value=0.1, max_value=1., value=1., step=0.1)

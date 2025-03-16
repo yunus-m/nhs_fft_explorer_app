@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install pandas XlsxWriter scipy plotly matplotlib umap-learn streamlit transformers datasets
+RUN pip3 install pandas XlsxWriter scipy plotly matplotlib umap-learn streamlit transformers datasets wordcloud
 RUN pip3 install torch --index-url https://download.pytorch.org/whl/cpu
 
 COPY . /nhs_fft_explorer_app

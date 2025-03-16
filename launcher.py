@@ -8,7 +8,7 @@ import os
 client = docker.from_env()
 
 #Check if running as a bundled executable or not
-if getattr(sys, 'frozen', False):
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
     #Running as PyInstaller bundle
     bundle_dir = sys._MEIPASS
     print('Running from PyInstaller bundle [{bundle_dir}]')

@@ -9,7 +9,7 @@ st.title('Export')
 
 if not hasattr(st.session_state, 'data_dict'):
     st.warning('No data loaded')
-elif 'proj' not in st.session_state.data_dict:
+elif 'umap_proj' not in st.session_state.data_dict:
     st.warning('Use the Explore tab first')
 else:
     df = st.session_state.data_dict['df_tweaked']

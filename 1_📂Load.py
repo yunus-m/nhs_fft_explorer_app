@@ -10,12 +10,12 @@ model_dir = 'data/hfcheckpoint-tinybert-sst5-fft'
 tokenizer_dir = 'data/hfcheckpoint-tokenizer'
 
 
-st.title('Load and process FFT data')
+st.title('📂Load and process FFT data')
 
 #
 # Data has been loaded - show
 #
-file_uploader_btn = st.file_uploader('Load FFT data', type='csv')
+file_uploader_btn = st.file_uploader('Load fft data', type='csv', label_visibility='hidden')
 if file_uploader_btn:
     df = pd.read_csv(file_uploader_btn, index_col=0)
     st.write(f'**Original data** | {len(df)} rows, {df.shape[1]} columns. Showing first 50 rows.')
@@ -29,7 +29,7 @@ else:
 # Show tweaked data
 #
 if file_uploader_btn and st.checkbox('Show formatted data'):
-    st.write('**Formatted data**')
+    st.markdown('**Formatted data**')
     st.dataframe(df_tweaked.iloc[:50])
 
 #

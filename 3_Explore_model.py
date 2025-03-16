@@ -9,10 +9,17 @@ from plotly.subplots import make_subplots
 
 from umap import UMAP
 import textwrap
-from wordcloud import WordCloud
 
 from frontend_utils import discrete_plotly_colorscale
 from spreadsheet_data_handling import sentiment_dict
+
+
+#
+# Callbacks
+#
+def umap_callback():
+    """Set flag to indicate UMAP should be run"""
+    st.session_state.data_dict['umap_proj_pg3'] = None
 
 
 st.title('Explore model')
@@ -22,6 +29,7 @@ with col1:
     neigh_slider = st.slider(
         'local vs global structure',
         min_value=3, max_value=50, value=15, step=2,
+        on_change=umap_callback,
         help='Smaller values emphasise intracluster detail, whereas larger values focus on global structure',
     )
 
@@ -29,22 +37,24 @@ with col2:
     size_slider = st.slider('marker size', min_value=1, max_value=10, value=5, step=1)
 
 with col3:
-    opacity_slider = st.slider('opacity', min_value=0.1, max_value=1., value=1., step=0.1)
+    opacity_slider = st.slider('marker opacity', min_value=0.1, max_value=1., value=1., step=0.1)
 
 if hasattr(st.session_state, 'data_dict'):
-    df = st.session_state.data_dict['df_tweaked']
-    predictions = st.session_state.data_dict['predictions']
-    class_probs = st.session_state.data_dict['class_probs']
-    entropies = st.session_state.data_dict['entropies']
-    descriptions = st.session_state.data_dict['descriptions']
-    embeddings = st.session_state.data_dict['embeddings']
-    
-    #Run UMAP and save to session_state
-    umap_proj = UMAP(neigh_slider, random_state=0).fit_transform(embeddings)
-    st.session_state.data_dict['umap_proj'] = umap_proj
-    umap_x, umap_y = umap_proj.T
-    
+    data_dict = st.session_state.data_dict
+    df = data_dict['df_tweaked']
+    predictions = data_dict['predictions']
+    class_probs = data_dict['class_probs']
+    entropies = data_dict['entropies']
+    descriptions = data_dict['descriptions']
+    embeddings = data_dict['embeddings']
 
+    #Run UMAP and save to session_state
+    if 'umap_proj_pg3' not in data_dict or data_dict['umap_proj_pg3'] is None:
+        umap_proj = UMAP(neigh_slider, random_state=0, n_jobs=1).fit_transform(embeddings)
+        st.session_state.data_dict['umap_proj_pg3'] = umap_proj
+    umap_x, umap_y = st.session_state.data_dict['umap_proj_pg3'].T
+    
+    
     #
     # Create figures
     #

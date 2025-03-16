@@ -1,38 +1,10 @@
 import streamlit as st
 import pandas as pd
-
-from io import BytesIO
-
 import matplotlib.pyplot as plt
-from matplotlib.colors import to_hex
 
-from spreadsheet_data_handling import sentiment_dict
-
-
-#
-# Helper functions
-#
-def style_sentiment_description(val):
-    cmap = plt.get_cmap('PiYG_r', 5)
-    mapping = {
-        description: to_hex( cmap(i/(cmap.N-1)) ) for i, description in enumerate(sentiment_dict.values())
-    }
-    return f'background-color: {mapping[val]}; color: {"white" if val != "neutral" else "black"}'
+from frontend_utils import style_sentiment_description, to_excel
 
 
-def to_excel(df):
-    buffer = BytesIO()
-
-    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-        df.to_excel(writer)
-    buffer.seek(0)
-
-    return buffer
-
-
-#
-# Page
-#
 st.title('Export')
 
 if not hasattr(st.session_state, 'data_dict'):
@@ -43,7 +15,7 @@ else:
     df = st.session_state.data_dict['df_tweaked']
     predictions = st.session_state.data_dict['predictions']
     class_probs = st.session_state.data_dict['class_probs']
-    entropies = st.session_state.data_dict['entropies'] #/ np.log2(5) * 100
+    entropies = st.session_state.data_dict['entropies']
     
     proj = st.session_state.data_dict['proj']
     descriptions = st.session_state.data_dict['descriptions']

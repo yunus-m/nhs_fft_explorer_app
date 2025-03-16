@@ -1,7 +1,11 @@
 import numpy as np
-from matplotlib import pyplot as plt
-from matplotlib.colors import Colormap
+import pandas as pd
+from io import BytesIO
 
+from matplotlib import pyplot as plt
+from matplotlib.colors import Colormap, to_hex
+
+from spreadsheet_datat_handling import sentiment_dict
 
 def cmap_to_colorscale(cmap : Colormap) -> list[str]:
     """
@@ -50,3 +54,49 @@ def discrete_plotly_colorscale(cmap_name : str, levels : int) -> list[tuple[floa
         (4/5, colorscale[4]), (5/5, colorscale[4]),
     ]
     return discrete_predictions_colorscale
+
+
+def style_sentiment_description(description : str, cmap_name='PiYG_r') -> str:
+    """
+    Pandas colour styler for standardised sentiment descriptions
+
+    Parameters
+    ----------
+    description : str
+        A description from `sentiment_dict` (e.g. "very positive")
+    cmap_name : str
+        Colour map to discretise and apply to the description cells
+    
+    Returns
+    -------
+    CSS-style string that maps the description to a colour map
+    """
+    cmap = plt.get_cmap(cmap_name, len(sentiment_dict))
+
+    mapping = {
+        description: to_hex(cmap( (i + 1) / cmap.N ))
+        for i, description in enumerate(sentiment_dict.values())
+    }
+    return f'background-color: {mapping[description]}; color: {"white" if description != "neutral" else "black"}'
+
+
+def to_excel(df : pd.DataFrame) -> BytesIO:
+    """
+    Write a dataframe to Excel format, returning the results in a buffer
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The dataframe to write to Excel format
+    
+    Returns
+    -------
+    A buffer containing the converted dataframe
+    """
+    buffer = BytesIO()
+
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        df.to_excel(writer, sheet_name='Sheet_1')
+    buffer.seek(0)
+
+    return buffer

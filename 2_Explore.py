@@ -16,6 +16,9 @@ from frontend_utils import discrete_plotly_colorscale
 
 st.title('Explore')
 
+#
+# Sliders
+#
 col1, col2, col3 = st.columns(3)
 with col1:
     neigh_slider = st.slider(
@@ -129,19 +132,15 @@ if hasattr(st.session_state, 'data_dict'):
     fig.add_trace(scatter3, row=3, col=1)
     
     #manually link all to same x/y
-    for row, col in [[1, 1], [2, 1], [3, 1]]:
-        fig.update_xaxes(matches='x', row=row, col=col)
-        fig.update_yaxes(matches='y', row=row, col=col)
+    for col, row in [[1, 1], [1, 2], [1, 3]]:
+        fig.update_xaxes(matches='x', col=col1, row=row)
+        fig.update_yaxes(matches='y', col=col, row=row)
 
     #Remove grid and axes
     fig.update_xaxes(showgrid=False, showticklabels=False)
     fig.update_yaxes(showgrid=False, showticklabels=False)
 
-    fig.update_layout(
-        title='',
-        showlegend=False,
-        height=1000, #width=100
-    )
+    fig.update_layout(title='', showlegend=False, height=1000)
 
     st.plotly_chart(fig, use_container_width=True)
 else:

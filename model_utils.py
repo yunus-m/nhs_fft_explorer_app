@@ -20,6 +20,8 @@ from transformers import (
 )
 from datasets import Dataset
 
+from spreadsheet_data_handling import sentiment_dict
+
 
 #Check if running as a bundled executable or not
 if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
@@ -29,9 +31,10 @@ else:
     #Running from source
     bundle_dir = os.path.dirname(os.path.abspath(__file__))
 
-#Enforce CPU-only
+#Enforce CPU-only, 4 threads
 device = 'cpu'
-torch.set_num_threads(torch.get_num_threads()) #4 for typical laptop
+torch.set_num_threads(4)
+# torch.set_num_threads(torch.get_num_threads())
 
 
 def combine_question_answer(batch) -> dict[str, list]:
@@ -158,7 +161,7 @@ def forward_pass_from_checkpoint(
         logits = np.concatenate(logits, axis=0)
 
         #
-        # From logits, get: predictions, entropies, class probabilities
+        # From logits, get: predictions, entropies, class probs, descriptions
         #
         probabilities = softmax(logits, axis=1)
         
@@ -170,7 +173,9 @@ def forward_pass_from_checkpoint(
              'predictions': predictions,
              'class_probs': class_probs,
              'entropies': entropies,
-             'embeddings': embeddings
+             'embeddings': embeddings,
+             'descriptions': [sentiment_dict[p] for p in predictions],
+
         }
         return model_results
 

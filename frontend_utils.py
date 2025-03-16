@@ -5,7 +5,7 @@ from io import BytesIO
 from matplotlib import pyplot as plt
 from matplotlib.colors import Colormap, to_hex
 
-from spreadsheet_datat_handling import sentiment_dict
+from spreadsheet_data_handling import sentiment_dict
 
 def cmap_to_colorscale(cmap : Colormap) -> list[str]:
     """
@@ -74,10 +74,11 @@ def style_sentiment_description(description : str, cmap_name='PiYG_r') -> str:
     cmap = plt.get_cmap(cmap_name, len(sentiment_dict))
 
     mapping = {
-        description: to_hex(cmap( (i + 1) / cmap.N ))
+        description: to_hex(cmap( i/(cmap.N - 1) ))
         for i, description in enumerate(sentiment_dict.values())
     }
-    return f'background-color: {mapping[description]}; color: {"white" if description != "neutral" else "black"}'
+    return f'background-color: {mapping[description]}; color: {"white" if "very" in description else "black"}'
+    # return f'background-color: {mapping[description]}; color: black'
 
 
 def to_excel(df : pd.DataFrame) -> BytesIO:

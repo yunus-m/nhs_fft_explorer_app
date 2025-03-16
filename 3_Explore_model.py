@@ -9,49 +9,46 @@ from plotly.subplots import make_subplots
 
 from umap import UMAP
 import textwrap
+from wordcloud import WordCloud
 
-from spreadsheet_data_handling import sentiment_dict
 from frontend_utils import discrete_plotly_colorscale
+from spreadsheet_data_handling import sentiment_dict
 
 
-st.title('Explore')
+st.title('Explore model')
 
-#
-# Sliders
-#
 col1, col2, col3 = st.columns(3)
 with col1:
     neigh_slider = st.slider(
-        'local vs global structure', min_value=3, max_value=50, value=15, step=2,
-        help='Smaller values emphasise intracluster detail, whereas larger values focus on global structure'
+        'local vs global structure',
+        min_value=3, max_value=50, value=15, step=2,
+        help='Smaller values emphasise intracluster detail, whereas larger values focus on global structure',
     )
 
 with col2:
-    size_slider = st.slider('marker size', min_value=1, max_value=10, value=3, step=1)
+    size_slider = st.slider('marker size', min_value=1, max_value=10, value=5, step=1)
 
 with col3:
     opacity_slider = st.slider('opacity', min_value=0.1, max_value=1., value=1., step=0.1)
-
 
 if hasattr(st.session_state, 'data_dict'):
     df = st.session_state.data_dict['df_tweaked']
     predictions = st.session_state.data_dict['predictions']
     class_probs = st.session_state.data_dict['class_probs']
     entropies = st.session_state.data_dict['entropies']
-    descriptions = [sentiment_dict[p] for p in predictions]
-
-    #UMAP
-    proj = UMAP(neigh_slider, random_state=0).fit_transform(st.session_state.data_dict['embeddings'])
-    proj_x, proj_y = proj.T
-
-    #Update state for Export page
-    st.session_state.data_dict.update({'descriptions': descriptions, 'proj': proj})
+    descriptions = st.session_state.data_dict['descriptions']
+    embeddings = st.session_state.data_dict['embeddings']
+    
+    #Run UMAP and save to session_state
+    umap_proj = UMAP(neigh_slider, random_state=0).fit_transform(embeddings)
+    st.session_state.data_dict['umap_proj'] = umap_proj
+    umap_x, umap_y = umap_proj.T
     
 
     #
-    # Figures
+    # Create figures
     #
-    fig = make_subplots(rows=3, cols=1, vertical_spacing=0,)
+    fig = make_subplots(cols=1, rows=3, vertical_spacing=0)
 
     hovertext = [
         f'{desc}    #{ix}' + '<br>' + textwrap.fill(text=ans, width=50).replace('\n', '<br>')
@@ -65,7 +62,7 @@ if hasattr(st.session_state, 'data_dict'):
     )
     
     scatter_props = dict(
-        x=proj_x, y=proj_y,
+        x=umap_x, y=umap_y,
         hovertext=hovertext, hoverlabel=hoverlabel, hoverinfo='text',
         mode='markers',
         opacity=opacity_slider
@@ -127,13 +124,13 @@ if hasattr(st.session_state, 'data_dict'):
     )
     
     #Layout
-    fig.add_trace(scatter1, row=1, col=1)
-    fig.add_trace(scatter2, row=2, col=1)
-    fig.add_trace(scatter3, row=3, col=1)
+    fig.add_trace(scatter1, col=1, row=1)
+    fig.add_trace(scatter2, col=1, row=2)
+    fig.add_trace(scatter3, col=1, row=3)
     
     #manually link all to same x/y
     for col, row in [[1, 1], [1, 2], [1, 3]]:
-        fig.update_xaxes(matches='x', col=col1, row=row)
+        fig.update_xaxes(matches='x', col=col, row=row)
         fig.update_yaxes(matches='y', col=col, row=row)
 
     #Remove grid and axes
@@ -143,5 +140,6 @@ if hasattr(st.session_state, 'data_dict'):
     fig.update_layout(title='', showlegend=False, height=1000)
 
     st.plotly_chart(fig, use_container_width=True)
+
 else:
     st.warning('No data loaded')

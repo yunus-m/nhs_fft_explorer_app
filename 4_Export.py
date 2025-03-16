@@ -17,7 +17,7 @@ else:
     class_probs = st.session_state.data_dict['class_probs']
     entropies = st.session_state.data_dict['entropies']
     
-    proj = st.session_state.data_dict['proj']
+    umap_proj = st.session_state.data_dict['umap_proj']
     descriptions = st.session_state.data_dict['descriptions']
     
     final_df = (
@@ -26,7 +26,7 @@ else:
             sentiment=descriptions,
             probability=class_probs,
             entropy=entropies,
-            **{'2D viz': ['({:.1f}, {:.1f})'.format(*xy) for xy in proj]}
+            **{'2D viz': ['({:.1f}, {:.1f})'.format(*xy) for xy in umap_proj]}
         )
         .sort_values('prediction', ascending=False)
         [['question_type', 'answer_clean', 'sentiment', 'probability', 'entropy', '2D viz']]

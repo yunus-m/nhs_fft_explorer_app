@@ -1,3 +1,8 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+
 fft_explorer_image.tar
+
+launcher.spec
+build/
+dist/

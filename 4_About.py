@@ -2,12 +2,14 @@ import streamlit as st
 
 st.title('About')
 
-st.write("""
-    This is a simple streamlit app for exploring, exporting, and annotating data.
+st.write(
+    """
+    This is a simple streamlit app for exploring and exporting sentiment in FFT feedback.
              
-    The Explore page...
+    Use the *Load* page to load and process data.
     
-    The Export page...
+    Use the *Explore* page to explore and visualise relationships between the feedback.
     
-    The Annotate page...
-""")
+    Use the *Export* page to view annotated table of data and export the results as a spreadsheet.
+    """
+)

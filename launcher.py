@@ -2,11 +2,22 @@
 import docker
 import webbrowser
 
-import docker.errors
+import sys
+import os
 
 client = docker.from_env()
 
-tar_file = './fft_explorer_image.tar'
+#Check if running as a bundled executable or not
+if getattr(sys, 'frozen', False):
+    #Running as PyInstaller bundle
+    bundle_dir = sys._MEIPASS
+    print('Running from PyInstaller bundle [{bundle_dir}]')
+else:
+    #Running from source
+    print('Running from source')
+    bundle_dir = os.path.dirname(os.path.abspath(__file__))
+    
+tar_file = os.path.join(bundle_dir, 'fft_explorer_image.tar')
 fft_image_tag = 'fft_explorer_image:latest'
 
 #
@@ -47,14 +58,10 @@ container = client.containers.run(
     remove=True
 )
 
-if container.status == 'running':
-    print('Container running. Opening browser...')
 
-    try:
-        # webbrowser.open('http://localhost:8501', new=2)
-        import os
-        os.system('explorer.exe "http://localhost:8501"')
-    except Exception as e:
-        print(f'Failed to open browser: {e}')
-else:
-    print('Container failed to start running')
+try:
+    # webbrowser.open('http://localhost:8501', new=2)
+    import os
+    os.system('explorer.exe "http://localhost:8501"')
+except Exception as e:
+    print(f'Failed to open browser: {e}')

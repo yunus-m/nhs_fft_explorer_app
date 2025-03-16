@@ -7,42 +7,29 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+from umap import UMAP
+import textwrap
+
 from spreadsheet_data_handling import sentiment_dict
+from frontend_utils import discrete_plotly_colorscale
 
-#
-# Helper functions
-#
-def cmap_to_colorscale(cmap):
-    cmap_rgb = [cmap(i)[:3] for i in np.linspace(0., 1., cmap.N)]
-    cmap_rgb_str = ['rgb({:.0f}, {:.0f}, {:.0f})'.format(r*255, g*255, b*255) for r, g, b in cmap_rgb]
-    # return [(i / (cmap.N - 1), rgb_str) for i, rgb_str in enumerate(cmap_rgb_str)]
-    return cmap_rgb_str
 
-colorscale = cmap_to_colorscale(plt.get_cmap('PiYG_r', 5))
-discrete_colorscale = [
-    (0/5, colorscale[0]), (1/5, colorscale[0]),
-    (1/5, colorscale[1]), (2/5, colorscale[1]),
-    (2/5, colorscale[2]), (3/5, colorscale[2]),
-    (3/5, colorscale[3]), (4/5, colorscale[3]),
-    (4/5, colorscale[4]), (5/5, colorscale[4]),
-]
-
-#
-# Page
-#
-st.title('Explore')  #st.header
-st.write('Explore the scatter plots with different column colourings')
+st.title('Explore')
 
 col1, col2, col3 = st.columns(3)
 with col1:
-    neigh_slider = st.slider('local vs global structure', min_value=3, max_value=50, value=15, step=2, help='Smaller values emphasise intracluster detail, whereas larger values focus on global structure')
+    neigh_slider = st.slider(
+        'local vs global structure', min_value=3, max_value=50, value=15, step=2,
+        help='Smaller values emphasise intracluster detail, whereas larger values focus on global structure'
+    )
+
 with col2:
     size_slider = st.slider('marker size', min_value=1, max_value=10, value=3, step=1)
+
 with col3:
     opacity_slider = st.slider('opacity', min_value=0.1, max_value=1., value=1., step=0.1)
 
-from umap import UMAP
-import textwrap
+
 
 if hasattr(st.session_state, 'data_dict'):
     df = st.session_state.data_dict['df_tweaked']
@@ -86,7 +73,7 @@ if hasattr(st.session_state, 'data_dict'):
         **scatter_props,
         marker=dict(
             color=predictions,
-            colorscale=discrete_colorscale,
+            colorscale=discrete_plotly_colorscale('PiYG_r', 5),
             size=size_slider,
             colorbar={
                 'title': 'sentiment',

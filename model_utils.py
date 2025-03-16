@@ -38,34 +38,6 @@ def compute_metrics(model: torch.nn.Module, loader: torch.utils.data.DataLoader,
     return np.array(val_preds), cum_loss / len(loader.dataset)
 
 
-def pipeline_results_to_df(ans_list: list[dict], label2id: dict[str, int]) -> pd.DataFrame:
-    """Formats HuggingFace pipeline() results to a DataFrame, including entropy.
-
-    Parameters
-    ----------
-    ans_list : list[dict]
-        List of a dict per sample, where the dict has results for that sample
-    label2id : dict[str, int]
-        Mapping of class name to its index
-
-    Returns
-    ----------
-    DataFrame with a row per sample recording probabilities, entropy, and prediction
-    """
-    rows = []
-    for i, ans in enumerate(ans_list):
-        row_df = pd.DataFrame(ans).set_index('labels').T.set_axis([i], axis=0).rename_axis(index='sample')
-        rows.append(row_df)
-    
-    results_df = (
-        pd.concat(rows, axis=0)
-        [['very positive', 'positive', 'neutral', 'negative', 'very negative']]
-        .assign(entropy=lambda df_: df_.apply(lambda row_: -(row_ * np.log2(row_)).sum(), axis=1))
-        .assign(prediction=lambda df_: df_.loc[:, 'very positive':'very negative'].idxmax(axis=1).map(label2id))
-    )
-    return results_df
-
-
 def logits_to_df(logits: np.ndarray, id2label: dict[int, str]) -> pd.DataFrame:
     """Format logits from a PyTorch model into a DataFrame, including entropy.
 

@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.colors import Colormap
 
+
 def cmap_to_colorscale(cmap : Colormap) -> list[str]:
     """
     Convert matplotlib colormap to a plotly colorscale (equally-spaced)
@@ -21,6 +22,7 @@ def cmap_to_colorscale(cmap : Colormap) -> list[str]:
         for r, g, b in cmap_rgb
     ]
     return cmap_rgb_str
+
 
 def discrete_plotly_colorscale(cmap_name : str, levels : int) -> list[tuple[float, str]]:
     """

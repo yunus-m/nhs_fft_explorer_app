@@ -1,9 +1,9 @@
 #%%
-import docker
-import webbrowser
-
 import sys
 import os
+
+import docker
+import webbrowser
 
 client = docker.from_env()
 
@@ -40,9 +40,7 @@ for container in client.containers.list():
     print('Found exisiting container, removing...')
 
     try:
-        # container.stop()
-        # container.wait()
-        container.kill()
+        container.kill() #alternatively, stop()
         container.wait()
     except Exception as e:
         pass
@@ -58,10 +56,8 @@ container = client.containers.run(
     remove=True
 )
 
-
 try:
     # webbrowser.open('http://localhost:8501', new=2)
-    import os
     os.system('explorer.exe "http://localhost:8501"')
 except Exception as e:
     print(f'Failed to open browser: {e}')

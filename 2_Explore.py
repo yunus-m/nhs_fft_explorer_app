@@ -30,7 +30,6 @@ with col3:
     opacity_slider = st.slider('opacity', min_value=0.1, max_value=1., value=1., step=0.1)
 
 
-
 if hasattr(st.session_state, 'data_dict'):
     df = st.session_state.data_dict['df_tweaked']
     predictions = st.session_state.data_dict['predictions']

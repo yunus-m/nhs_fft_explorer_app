@@ -3,6 +3,6 @@ __pycache__/
 
 fft_explorer_image.tar
 
-launcher.spec
+app_launcher.spec
 build/
 dist/

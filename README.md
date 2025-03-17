@@ -17,17 +17,17 @@ Export annotated tables to CSV and Excel, ready for use with BI tools:
 ## Running the app
 In each case below, point your browser to `http://localhost:8501` to view the app.
 
-### - Directly from a Python environment
+### Directly from a Python environment
 Install the `requirements.txt` file using `pip` or set up an equivalent environment.
 
 Launch the app using `streamlit run streamlit_app.py`
 
-### - Build and run using Docker
+### Build and run using Docker
 Build the Docker file using `docker build . -t fft_explorer_app`.
 
 Launch the app using `docker run -p 8501:8501 fft_explorer_app:latest`
 
-### - PyInstaller for deploying a platform-independent app
+### PyInstaller for deploying a platform-independent app
 The user will need an installation of Docker Desktop.
 
 Save the Docker image out using `docker save -o fft_explorer_app.tar fft_explorer_app:latest`

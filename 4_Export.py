@@ -17,7 +17,7 @@ else:
     class_probs = st.session_state.data_dict['class_probs']
     entropies = st.session_state.data_dict['entropies']
     
-    umap_proj = st.session_state.data_dict['umap_proj']
+    umap_proj = st.session_state.data_dict['umap_proj_pg3']
     descriptions = st.session_state.data_dict['descriptions']
     
     final_df = (

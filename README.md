@@ -2,11 +2,22 @@
 A desktop application for processing and exploring NHS FFT sentiment data
 
 ## Usage overview
+Visualise the relationship between samples:
+![alt text](image.png)
+
+Generate word embeddings of interesting clusters:
+![alt text](image-1.png)
+
+Look at the  model's confidence and how mixed the prediction is (entropy):
+![alt text](image-2.png)
+
+Export annotated tables to CSV and Excel, ready for use with BI tools:
+![alt text](image-3.png)
 
 ## Running the app
 In each case below, point your browser to `http://localhost:8501` to view the app.
 
-### Directly from a Python environment
+### -Directly from a Python environment
 Install the `requirements.txt` file using `pip` or set up an equivalent environment.
 
 Launch the app using `streamlit run streamlit_app.py`
@@ -18,9 +29,12 @@ Launch the app using `docker run -p 8501:8501 fft_explorer_app:latest`
 
 ### PyInstaller for deploying a platform-independent app
 The user will need an installation of Docker Desktop.
+
 Save the Docker image out using `docker save -o fft_explorer_app.tar fft_explorer_app:latest`
 
 Compile the app on your target platform (Windows, Mac, or Linux); for Linux I use:
-`pyinstaller --onefile app_launcher.py --add_data "data:data" --add-data "fft_explorer_image.tar:."
+`pyinstaller --onefile app_launcher.py --add_data "data:data" --add-data "fft_explorer_image.tar:."`
 
 The compiled version will internally invoke `app_launcher.py` which loads the Docker image and starts a container.
+
+The `--onefile` switch is option, used for compiling into a single file rather than a folder.

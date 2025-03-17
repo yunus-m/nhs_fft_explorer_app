@@ -3,16 +3,16 @@ A desktop application for processing and exploring NHS FFT sentiment data
 
 ## Usage overview
 Visualise the relationship between samples:
-![alt text](image.png)
+![alt text](screenshots/image.png)
 
 Generate word embeddings of interesting clusters:
-![alt text](image-1.png)
+![alt text](screenshots/image-1.png)
 
 Look at the  model's confidence and how mixed the prediction is (entropy):
-![alt text](image-2.png)
+![alt text](screenshots/image-2.png)
 
 Export annotated tables to CSV and Excel, ready for use with BI tools:
-![alt text](image-3.png)
+![alt text](screenshots/image-3.png)
 
 ## Running the app
 In each case below, point your browser to `http://localhost:8501` to view the app.

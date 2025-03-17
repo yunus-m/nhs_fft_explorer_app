@@ -27,10 +27,14 @@ Build the Docker file using `docker build . -t fft_explorer_app`.
 
 Launch the app using `docker run -p 8501:8501 fft_explorer_app:latest`
 
+The resulting image is around 5GB in size.
+
 ### PyInstaller for deploying a platform-independent app
 The user will need an installation of Docker Desktop.
 
-Save the Docker image out using `docker save -o fft_explorer_app.tar fft_explorer_app:latest`
+Save the Docker image out using `docker save -o fft_explorer_app.tar fft_explorer_app:latest`.
+
+The tarball is around 1GB.
 
 Compile the app on your target platform (Windows, Mac, or Linux); for Linux I use:
 `pyinstaller --onefile app_launcher.py --add_data "data:data" --add-data "fft_explorer_image.tar:."`

@@ -1,6 +1,9 @@
 # nhs_fft_explorer_app
 A desktop application for processing and exploring NHS FFT sentiment data
 
+## Demo
+![Demo](screenshots/streamlit-streamlit_app-2025-05-08-14-05-73.gif)
+
 ## Usage overview
 Visualise the relationship between samples:
 ![alt text](screenshots/image.png)

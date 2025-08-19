@@ -1,5 +1,6 @@
 # nhs_fft_explorer_app
-A desktop application for processing and exploring NHS FFT sentiment data
+Interactive desktop app for visually exploring themes and sentiment in NHS FFT feedback. User can also export the results for further quantitative analysis using their preferred BI tool.
+
 
 ## Demo
 ![Demo](screenshots/streamlit-streamlit_app-2025-05-08-14-05-73.gif)
@@ -46,3 +47,14 @@ Compile the app on your target platform (Windows, Mac, or Linux); for Linux I us
 The compiled version will internally invoke `app_launcher.py` which loads the Docker image and starts a container.
 
 The `--onefile` switch is option, used for compiling into a single file rather than a folder.
+
+## Technical summary
+Frontend
+ - Streamlit UI with Plotly interactive figures
+
+Backend
+ - Fine-tuned TinyBERT LLM optimized for both speed on regular desktops and good performance on sentiment analysis
+
+Deployment
+ - Easy click-to-launch app
+ - Internally uses Docker and PyInstaller for simple multi-platform deployment to any desktop computer
